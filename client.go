@@ -14,7 +14,6 @@ func CreateSNTPConnection(host string) (*SNTPClient, error) {
 
 	conn, err := net.DialUDP("udp", nil, udpAddr)
 	if err != nil {
-		// log.Fatalf("Failed to dial: %v", err)
 		return nil, err
 	}
 	return (*SNTPClient)(conn), err
@@ -37,25 +36,23 @@ func unmarshallNTPResponse(buffer []byte) (referenceTime NTPTime, receptionTime 
 }
 
 func (client SNTPClient) GetOffset() (time.Duration, error) {
-	msg := make([]byte, 48)
-	msg[0] = 0x1b
-	fmt.Println(msg)
-	buffer := make([]byte, 48)
+	reqMsg := make([]byte, 48)
+	reqMsg[0] = 0x1b
+	respMsg := make([]byte, 48)
 
 	clientRequestTransmissionTime := time.Now().UTC()
-	_, err := client.Write(msg)
+	_, err := client.Write(reqMsg)
 	if err != nil {
 		return 0, err
 	}
 
 	clientResponseReceptionTime := time.Now().UTC()
-	_, err = client.Read(buffer)
+	_, err = client.Read(respMsg)
 	if err != nil {
 		return 0, err
 	}
-	fmt.Println(buffer)
 
-	serverReferenceTime, serverReceptionTime, serverTransmissionTime := unmarshallNTPResponse(buffer)
+	serverReferenceTime, serverReceptionTime, serverTransmissionTime := unmarshallNTPResponse(respMsg)
 
 	offset := calculateClockOffset(clientRequestTransmissionTime,
 		clientResponseReceptionTime,
