@@ -29,6 +29,13 @@ func calculateClockOffset(clientRequestTransmissionTime time.Time,
 	return offset
 }
 
+func unmarshallNTPResponse(buffer []byte) (referenceTime NTPTime, receptionTime NTPTime, transmissionTime NTPTime) {
+	referenceTime = NTPTimeFromByteArray(buffer[16 : 16+8])
+	receptionTime = NTPTimeFromByteArray(buffer[32 : 32+8])
+	transmissionTime = NTPTimeFromByteArray(buffer[40 : 40+8])
+	return referenceTime, receptionTime, transmissionTime
+}
+
 func (client SNTPClient) GetOffset() (time.Duration, error) {
 	msg := make([]byte, 48)
 	msg[0] = 0x1b
@@ -47,11 +54,8 @@ func (client SNTPClient) GetOffset() (time.Duration, error) {
 		return 0, err
 	}
 	fmt.Println(buffer)
-	fmt.Println(buffer[16 : 16+8])
 
-	serverReferenceTime := NTPTimeFromByteArray(buffer[16 : 16+8])
-	serverReceptionTime := NTPTimeFromByteArray(buffer[32 : 32+8])
-	serverTransmissionTime := NTPTimeFromByteArray(buffer[40 : 40+8])
+	serverReferenceTime, serverReceptionTime, serverTransmissionTime := unmarshallNTPResponse(buffer)
 
 	offset := calculateClockOffset(clientRequestTransmissionTime,
 		clientResponseReceptionTime,
