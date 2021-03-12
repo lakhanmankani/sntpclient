@@ -22,8 +22,8 @@ func CreateSNTPConnection(host string) (*SNTPClient, error) {
 
 func calculateClockOffset(clientRequestTransmissionTime time.Time,
 	clientResponseReceptionTime time.Time,
-	serverReceptionTime SNTPTime,
-	serverTransmissionTime SNTPTime) time.Duration {
+	serverReceptionTime NTPTime,
+	serverTransmissionTime NTPTime) time.Duration {
 	offset := ((serverReceptionTime.Time().Sub(clientRequestTransmissionTime)) +
 		(serverTransmissionTime.Time().Sub(clientResponseReceptionTime))) / 2
 	return offset
@@ -49,9 +49,9 @@ func (client SNTPClient) GetOffset() (time.Duration, error) {
 	fmt.Println(buffer)
 	fmt.Println(buffer[16 : 16+8])
 
-	serverReferenceTime := SNTPTimeFromByteArray(buffer[16 : 16+8])
-	serverReceptionTime := SNTPTimeFromByteArray(buffer[32 : 32+8])
-	serverTransmissionTime := SNTPTimeFromByteArray(buffer[40 : 40+8])
+	serverReferenceTime := NTPTimeFromByteArray(buffer[16 : 16+8])
+	serverReceptionTime := NTPTimeFromByteArray(buffer[32 : 32+8])
+	serverTransmissionTime := NTPTimeFromByteArray(buffer[40 : 40+8])
 
 	offset := calculateClockOffset(clientRequestTransmissionTime,
 		clientResponseReceptionTime,
