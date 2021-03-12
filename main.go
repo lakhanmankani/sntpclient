@@ -2,6 +2,6 @@ package main
 
 import "github.com/lakhanmankani/ntpclient/client"
 
-func main()  {
+func main() {
 	client.CreateSocket()
 }
