@@ -1,7 +1,18 @@
 package main
 
-import "github.com/lakhanmankani/ntpclient/client"
+import (
+	"fmt"
+	"log"
+)
 
 func main() {
-	client.CreateSocket()
+	client, err := CreateSNTPConnection("time.google.com")
+	if err != nil {
+		log.Fatal(err)
+	}
+	offset, err := client.GetOffset()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(offset)
 }

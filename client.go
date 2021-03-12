@@ -1,8 +1,7 @@
-package client
+package main
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"time"
 )
@@ -20,38 +19,6 @@ func CreateSNTPConnection(host string) (*SNTPClient, error) {
 	}
 	return (*SNTPClient)(conn), err
 }
-	//defer conn.Close()
-	//
-	//msg := make([]byte, 48)
-	//msg[0] = 0x1b
-	//fmt.Println(msg)
-	//buffer := make([]byte, 48)
-	//
-	//clientRequestTransmissionTime := time.Now().UTC()
-	//_, err = conn.Write(msg)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//clientResponseReceptionTime := time.Now().UTC()
-	//_, err = conn.Read(buffer)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//fmt.Println(buffer)
-	//fmt.Println(buffer[16 : 16+8])
-	//
-	//serverReferenceTime := SNTPTimeFromByteArray(buffer[16 : 16+8])
-	//serverReceptionTime := SNTPTimeFromByteArray(buffer[32 : 32+8])
-	//serverTransmissionTime := SNTPTimeFromByteArray(buffer[40 : 40+8])
-	//
-	//timeDifference := ((serverReceptionTime.Time().Sub(clientRequestTransmissionTime)) +
-	//	(serverTransmissionTime.Time().Sub(clientResponseReceptionTime))) / 2
-	//
-	//fmt.Println("Server ref time:", serverReferenceTime.Time().Unix())
-	//fmt.Println("Local time     :", clientRequestTransmissionTime.Unix())
-	//fmt.Println("Time difference:", timeDifference)
-	//}
 
 func calculateClockOffset(clientRequestTransmissionTime time.Time,
 	clientResponseReceptionTime time.Time,
@@ -62,7 +29,7 @@ func calculateClockOffset(clientRequestTransmissionTime time.Time,
 	return offset
 }
 
-func (client SNTPClient) GetOffset() time.Duration {
+func (client SNTPClient) GetOffset() (time.Duration, error) {
 	msg := make([]byte, 48)
 	msg[0] = 0x1b
 	fmt.Println(msg)
@@ -71,13 +38,13 @@ func (client SNTPClient) GetOffset() time.Duration {
 	clientRequestTransmissionTime := time.Now().UTC()
 	_, err := client.Write(msg)
 	if err != nil {
-		log.Fatal(err)
+		return 0, err
 	}
 
 	clientResponseReceptionTime := time.Now().UTC()
 	_, err = client.Read(buffer)
 	if err != nil {
-		log.Fatal(err)
+		return 0, err
 	}
 	fmt.Println(buffer)
 	fmt.Println(buffer[16 : 16+8])
@@ -95,5 +62,5 @@ func (client SNTPClient) GetOffset() time.Duration {
 	fmt.Println("Local time     :", clientRequestTransmissionTime.Unix())
 	fmt.Println("Time difference:", offset)
 
-	return offset
+	return offset, nil
 }
