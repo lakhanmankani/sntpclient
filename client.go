@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net"
 	"time"
 )
@@ -26,8 +25,6 @@ func CreateSNTPConnection(host string) (*SNTPClient, error) {
 
 func calculateClockOffset(resp NTPResponse,
 	clientResponseReceptionTime time.Time) time.Duration {
-	fmt.Println("Up:", resp.receiveTimeStamp.Time().Sub(resp.originateTimeStamp.Time()))
-	fmt.Println("Down:", resp.transmitTimestamp.Time().Sub(clientResponseReceptionTime))
 	offset := ((resp.receiveTimeStamp.Time().Sub(resp.originateTimeStamp.Time())) +
 		(resp.transmitTimestamp.Time().Sub(clientResponseReceptionTime))) / 2
 	return offset
@@ -55,14 +52,11 @@ func (client SNTPClient) MakeRequest() (receptionTime time.Time, response NTPRes
 		return time.Time{}, NTPResponse{}, err
 	}
 
-	clientResponseReceptionTime := time.Now().UTC()
 	_, err = client.Read(respMsg)
 	if err != nil {
 		return time.Time{}, NTPResponse{}, err
 	}
-
-	//fmt.Println(reqMsg)
-	//fmt.Println(respMsg)
+	clientResponseReceptionTime := time.Now().UTC()
 
 	response = unmarshallNTPResponse(respMsg)
 
@@ -76,10 +70,6 @@ func (client SNTPClient) GetOffset() (time.Duration, error) {
 	}
 
 	offset := calculateClockOffset(resp, receptionTime)
-
-	fmt.Println("Server rec time:", resp.receiveTimeStamp.Time())
-	fmt.Println("Local time     :", resp.originateTimeStamp.Time())
-	fmt.Println("Time difference:", offset)
 
 	return offset, nil
 }
