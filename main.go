@@ -15,4 +15,9 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println(offset)
+
+	err = client.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
