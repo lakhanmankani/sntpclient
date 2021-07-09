@@ -35,7 +35,7 @@ func calculateClockOffset(resp NTPResponse,
 
 func unmarshallNTPResponse(buffer []byte) NTPResponse {
 	return NTPResponse{
-		originateTimeStamp: NTPTimeFromByteArray(buffer[16 : 16+8]),
+		originateTimeStamp: NTPTimeFromByteArray(buffer[24 : 24+8]),
 		receiveTimeStamp:   NTPTimeFromByteArray(buffer[32 : 32+8]),
 		transmitTimestamp:  NTPTimeFromByteArray(buffer[40 : 40+8]),
 	}
@@ -48,7 +48,7 @@ func (client SNTPClient) MakeRequest() (receptionTime time.Time, response NTPRes
 
 	clientRequestTransmissionTime := time.Now().UTC()
 	requestNTPTime := NTPTimeFromTime(clientRequestTransmissionTime)
-	copy(reqMsg[16:16+8], requestNTPTime.ByteArrayFromNTP())
+	copy(reqMsg[40:40+8], requestNTPTime.ByteArrayFromNTP())
 
 	_, err = client.Write(reqMsg)
 	if err != nil {
@@ -60,6 +60,9 @@ func (client SNTPClient) MakeRequest() (receptionTime time.Time, response NTPRes
 	if err != nil {
 		return time.Time{}, NTPResponse{}, err
 	}
+
+	//fmt.Println(reqMsg)
+	//fmt.Println(respMsg)
 
 	response = unmarshallNTPResponse(respMsg)
 
