@@ -9,7 +9,6 @@ import (
 type SNTPClient net.UDPConn
 
 type NTPResponse struct {
-	referenceTimeStamp NTPTime
 	originateTimeStamp NTPTime
 	receiveTimeStamp   NTPTime
 	transmitTimestamp  NTPTime
@@ -17,7 +16,6 @@ type NTPResponse struct {
 
 func CreateSNTPConnection(host string) (*SNTPClient, error) {
 	udpAddr, _ := net.ResolveUDPAddr("udp", net.JoinHostPort(host, "123"))
-	// fmt.Println(udpAddr.String())
 
 	conn, err := net.DialUDP("udp", nil, udpAddr)
 	if err != nil {
@@ -37,24 +35,20 @@ func calculateClockOffset(clientRequestTransmissionTime time.Time,
 
 func unmarshallNTPResponse(buffer []byte) NTPResponse {
 	return NTPResponse{
-		referenceTimeStamp: NTPTimeFromByteArray(buffer[16 : 16+8]),
-		originateTimeStamp: NTPTimeFromByteArray(buffer[32 : 32+8]),
-		receiveTimeStamp:   NTPTimeFromByteArray(buffer[40 : 40+8]),
-		transmitTimestamp:  NTPTimeFromByteArray(buffer[48 : 48+8]),
+		originateTimeStamp: NTPTimeFromByteArray(buffer[16 : 16+8]),
+		receiveTimeStamp:   NTPTimeFromByteArray(buffer[32 : 32+8]),
+		transmitTimestamp:  NTPTimeFromByteArray(buffer[40 : 40+8]),
 	}
 }
 
 func (client SNTPClient) MakeRequest() (receptionTime time.Time, response NTPResponse, err error) {
-	reqMsg := make([]byte, 48)
+	reqMsg := make([]byte, 56)
 	reqMsg[0] = 0x1b
 	respMsg := make([]byte, 56)
 
 	clientRequestTransmissionTime := time.Now().UTC()
 	requestNTPTime := NTPTimeFromTime(clientRequestTransmissionTime)
-	copy(reqMsg[32:32+8], requestNTPTime.ByteArrayFromNTP())
-
-	fmt.Println(reqMsg)
-	// TODO: Write request time to msg
+	copy(reqMsg[16:16+8], requestNTPTime.ByteArrayFromNTP())
 
 	_, err = client.Write(reqMsg)
 	if err != nil {
@@ -66,10 +60,8 @@ func (client SNTPClient) MakeRequest() (receptionTime time.Time, response NTPRes
 	if err != nil {
 		return time.Time{}, NTPResponse{}, err
 	}
-	fmt.Println(respMsg)
 
 	response = unmarshallNTPResponse(respMsg)
-
 
 	return clientResponseReceptionTime, response, nil
 }
@@ -80,14 +72,13 @@ func (client SNTPClient) GetOffset() (time.Duration, error) {
 		return 0, err
 	}
 
-
 	offset := calculateClockOffset(resp.originateTimeStamp.Time(),
-		receptionTime, // resp.receiveTimeStamp.Time(),
-		resp.referenceTimeStamp,
+		receptionTime,
+		resp.transmitTimestamp,
 		resp.transmitTimestamp)
 
-	fmt.Println("Server ref time:", resp.referenceTimeStamp.Time().UnixNano())
-	fmt.Println("Local time     :", resp.originateTimeStamp.Time().UnixNano())
+	fmt.Println("Server rec time:", resp.receiveTimeStamp.Time())
+	fmt.Println("Local time     :", resp.originateTimeStamp.Time())
 	fmt.Println("Time difference:", offset)
 
 	return offset, nil
