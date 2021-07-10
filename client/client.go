@@ -8,9 +8,9 @@ import (
 type SNTPClient net.UDPConn
 
 type NTPResponse struct {
-	originateTimeStamp NTPTime
-	receiveTimeStamp   NTPTime
-	transmitTimestamp  NTPTime
+	OriginateTimeStamp NTPTime
+	ReceiveTimeStamp   NTPTime
+	TransmitTimeStamp  NTPTime
 }
 
 func CreateSNTPConnection(host string) (*SNTPClient, error) {
@@ -25,16 +25,16 @@ func CreateSNTPConnection(host string) (*SNTPClient, error) {
 
 func CalculateClockOffset(resp NTPResponse,
 	clientResponseReceptionTime time.Time) time.Duration {
-	offset := ((resp.receiveTimeStamp.Time().Sub(resp.originateTimeStamp.Time())) +
-		(resp.transmitTimestamp.Time().Sub(clientResponseReceptionTime))) / 2
+	offset := ((resp.ReceiveTimeStamp.Time().Sub(resp.OriginateTimeStamp.Time())) +
+		(resp.TransmitTimeStamp.Time().Sub(clientResponseReceptionTime))) / 2
 	return offset
 }
 
 func unmarshallNTPResponse(buffer []byte) NTPResponse {
 	return NTPResponse{
-		originateTimeStamp: NTPTimeFromByteArray(buffer[24 : 24+8]),
-		receiveTimeStamp:   NTPTimeFromByteArray(buffer[32 : 32+8]),
-		transmitTimestamp:  NTPTimeFromByteArray(buffer[40 : 40+8]),
+		OriginateTimeStamp: NTPTimeFromByteArray(buffer[24 : 24+8]),
+		ReceiveTimeStamp:   NTPTimeFromByteArray(buffer[32 : 32+8]),
+		TransmitTimeStamp:  NTPTimeFromByteArray(buffer[40 : 40+8]),
 	}
 }
 
