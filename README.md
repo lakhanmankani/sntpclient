@@ -1,2 +1,2 @@
 # sntpclient
-Very simple SNT client.
+Very simple SNTP client.
