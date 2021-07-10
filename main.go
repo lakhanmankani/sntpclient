@@ -2,21 +2,22 @@ package main
 
 import (
 	"fmt"
+	"github.com/lakhanmankani/sntpclient/client"
 	"log"
 )
 
 func main() {
-	client, err := CreateSNTPConnection("time.google.com")
+	conn, err := client.CreateSNTPConnection("time.google.com")
 	if err != nil {
 		log.Fatal(err)
 	}
-	offset, err := client.GetOffset()
+	offset, err := conn.GetOffset()
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("Offset:", offset)
 
-	err = client.Close()
+	err = conn.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
