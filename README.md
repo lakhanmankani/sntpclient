@@ -38,6 +38,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	receptionTime, resp, err := conn.MakeRequest()
 	if err != nil {
 		log.Fatal(err)
@@ -48,7 +49,6 @@ func main() {
 	fmt.Println("Responsed receive time:", receptionTime)
 
 	offset := client.CalculateClockOffset(resp, receptionTime)
-
 	fmt.Println("Offset:", offset)
 }
 ```
