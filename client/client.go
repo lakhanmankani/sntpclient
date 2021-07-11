@@ -8,9 +8,9 @@ import (
 type SNTPClient net.UDPConn
 
 type NTPResponse struct {
-	OriginateTimeStamp NTPTime
-	ReceiveTimeStamp   NTPTime
-	TransmitTimeStamp  NTPTime
+	OriginateTimeStamp NTPTime // T1
+	ReceiveTimeStamp   NTPTime // T2
+	TransmitTimeStamp  NTPTime // T3
 }
 
 func CreateSNTPConnection(host string) (*SNTPClient, error) {
@@ -56,7 +56,7 @@ func (client SNTPClient) MakeRequest() (receptionTime time.Time, response NTPRes
 	if err != nil {
 		return time.Time{}, NTPResponse{}, err
 	}
-	clientResponseReceptionTime := time.Now().UTC()
+	clientResponseReceptionTime := time.Now().UTC() // T4
 
 	response = unmarshallNTPResponse(respMsg)
 
