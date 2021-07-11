@@ -43,12 +43,17 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Request sent time:     ", resp.OriginateTimeStamp.Time())
-	fmt.Println("Server receive time:   ", resp.ReceiveTimeStamp.Time())
-	fmt.Println("Server transmit time:  ", resp.TransmitTimeStamp.Time())
-	fmt.Println("Responsed receive time:", receptionTime)
+	fmt.Println("Request sent time:    ", resp.OriginateTimeStamp.Time())
+	fmt.Println("Server receive time:  ", resp.ReceiveTimeStamp.Time())
+	fmt.Println("Server transmit time: ", resp.TransmitTimeStamp.Time())
+	fmt.Println("Response receive time:", receptionTime)
 
 	offset := client.CalculateClockOffset(resp, receptionTime)
 	fmt.Println("Offset:", offset)
+
+	err = conn.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 ```
