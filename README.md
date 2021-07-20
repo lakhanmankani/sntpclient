@@ -3,7 +3,7 @@ Very simple SNTP client.
 
 ## Installation
 ```bash
-$ go get -u https://github.com/lakhanmankani/sntpclient
+$ go get -u github.com/lakhanmankani/sntpclient
 ```
 
 ## Usage
